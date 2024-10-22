@@ -1,5 +1,7 @@
 from typing import List, Optional, Union
 
+from deprecated import deprecated
+
 from specklepy.objects.base import Base
 from specklepy.objects.geometry import (
     Arc,
@@ -12,23 +14,69 @@ from specklepy.objects.geometry import (
 )
 
 
-class GisPolygonGeometry(
-    Base, speckle_type="Objects.GIS.PolygonGeometry", detachable={"displayValue"}
-):
+class PolygonGeometry(Base, speckle_type="Objects.GIS.PolygonGeometry"):
     """GIS Polygon Geometry"""
 
-    boundary: Optional[Union[Polyline, Arc, Line, Circle, Polycurve]] = None
-    voids: Optional[List[Union[Polyline, Arc, Line, Circle, Polycurve]]] = None
-    displayValue: Optional[List[Mesh]] = None
+    boundary: Polyline
+    voids: List[Polyline]
+
+    def __init__(
+        self,
+        units: str,
+        boundary: Polyline,
+        voids: Optional[List[Polyline]] = None,
+    ) -> None:
+        super().__init__(units=units)
+        self.boundary = boundary
+        self.voids = voids or []
 
 
+GisPolygonGeometry = PolygonGeometry
+
+
+class PolygonGeometry3d(
+    PolygonGeometry,
+    speckle_type="Objects.GIS.PolygonGeometry3d",
+):
+    """GIS Polygon3d Geometry"""
+
+    def __init__(
+        self,
+        units: str,
+        boundary: Polyline,
+        voids: Optional[List[Polyline]] = None,
+    ) -> None:
+        super().__init__(units=units, boundary=boundary, voids=voids)
+
+
+class GisMultipatchGeometry(
+    Base,
+    speckle_type="Objects.GIS.GisMultipatchGeometry",
+):
+    """GIS Polygon3d Geometry"""
+
+    def __init__(
+        self,
+        units: str,
+        faces: List[int],
+        vertices: List[float],
+        colors: Optional[List[int]],
+    ) -> None:
+        super().__init__(units=units)
+        self.faces = faces
+        self.vertices = vertices
+        self.colors = colors or []
+
+
+@deprecated(version="2.20", reason="Replaced with GisPolygonFeature")
 class GisPolygonElement(Base, speckle_type="Objects.GIS.PolygonElement"):
     """GIS Polygon element"""
 
-    geometry: Optional[List[GisPolygonGeometry]] = None
+    geometry: Optional[List[PolygonGeometry]] = None
     attributes: Optional[Base] = None
 
 
+@deprecated(version="2.20", reason="Replaced with GisPolyineFeature")
 class GisLineElement(Base, speckle_type="Objects.GIS.LineElement"):
     """GIS Polyline element"""
 
@@ -36,6 +84,7 @@ class GisLineElement(Base, speckle_type="Objects.GIS.LineElement"):
     attributes: Optional[Base] = None
 
 
+@deprecated(version="2.20", reason="Replaced with GisPointFeature")
 class GisPointElement(Base, speckle_type="Objects.GIS.PointElement"):
     """GIS Point element"""
 
@@ -68,6 +117,7 @@ class GisTopography(
     """GIS Raster element with 3d Topography representation"""
 
 
+@deprecated(version="2.20", reason="Replaced with GisNonGeometricFeature")
 class GisNonGeometryElement(Base, speckle_type="Objects.GIS.NonGeometryElement"):
     """GIS Table feature"""
 
